@@ -1,0 +1,85 @@
+[
+  {
+    "username": "testuser123",
+    "password": "test123",
+    "gameHistory": [
+      {
+        "score": 25,
+        "correct": 3,
+        "wrong": 1,
+        "timeTaken": 30,
+        "date": "2025-07-18T14:54:43.531Z"
+      },
+      {
+        "score": 25,
+        "correct": 3,
+        "wrong": 1,
+        "timeTaken": 30,
+        "date": "2025-07-18T15:01:09.031Z"
+      },
+      {
+        "score": -15,
+        "correct": 0,
+        "wrong": 3,
+        "timeTaken": 30,
+        "date": "2025-07-18T15:09:36.918Z"
+      },
+      {
+        "score": 25,
+        "correct": 3,
+        "wrong": 1,
+        "timeTaken": 0,
+        "date": "2025-07-18T15:24:12.423Z"
+      },
+      {
+        "score": 40,
+        "correct": 4,
+        "wrong": 0,
+        "timeTaken": 0,
+        "date": "2025-07-18T15:29:42.489Z"
+      },
+      {
+        "score": 40,
+        "correct": 4,
+        "wrong": 0,
+        "timeTaken": 0,
+        "date": "2025-07-18T15:36:43.130Z"
+      },
+      {
+        "score": 40,
+        "correct": 4,
+        "wrong": 0,
+        "timeTaken": 0,
+        "date": "2025-07-19T13:17:11.386Z"
+      },
+      {
+        "score": 40,
+        "correct": 4,
+        "wrong": 0,
+        "timeTaken": 0,
+        "date": "2025-07-19T13:21:30.266Z"
+      },
+      {
+        "score": 40,
+        "correct": 4,
+        "wrong": 0,
+        "timeTaken": 0,
+        "date": "2025-07-19T13:27:09.484Z"
+      },
+      {
+        "score": 40,
+        "correct": 4,
+        "wrong": 0,
+        "timeTaken": 0,
+        "date": "2025-07-19T13:35:34.021Z"
+      },
+      {
+        "score": 40,
+        "correct": 4,
+        "wrong": 0,
+        "timeTaken": 0,
+        "date": "2025-07-19T14:30:39.679Z"
+      }
+    ]
+  }
+]
