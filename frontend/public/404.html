@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Guess the Flag Name</title>
+    <script>
+      // GitHub Pages doesn't know about client-side routes, so a hard refresh on
+      // e.g. /guess-the-flag-name/login hits this 404 page. Stash the intended
+      // path and bounce to the app root; index.html restores it on load.
+      sessionStorage.redirect = location.href;
+    </script>
+    <meta http-equiv="refresh" content="0; url=/guess-the-flag-name/" />
+  </head>
+  <body>
+    Redirecting&hellip;
+  </body>
+</html>

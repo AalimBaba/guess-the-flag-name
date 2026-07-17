@@ -19,7 +19,7 @@ function PrivateRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/guess-the-flag-name/">
         <Navbar />
         <ErrorBoundary>
           <Routes>
