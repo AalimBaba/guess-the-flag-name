@@ -1,5 +1,9 @@
 # Guess the Flag Name
 
+**🔗 Live demo:** [https://aalimbaba.github.io/guess-the-flag-name/](https://aalimbaba.github.io/guess-the-flag-name/)
+
+> **Status:** The frontend is deployed and live on GitHub Pages. The backend (auth, game saves, leaderboard) is not yet hosted anywhere public, so the live demo will load the interface but sign-up/login/leaderboard calls won't succeed until the API is deployed — see [Deployment](#deployment) below for the one-time setup to make that live too.
+
 A full-stack geography quiz that challenges players to identify countries from their flags before the timer runs out. Choose a game mode and difficulty, build scoring streaks, track your accuracy, and compete on daily, weekly, and all-time leaderboards.
 
 ## Highlights
@@ -162,12 +166,49 @@ npm start         # Start the API with Node.js
 
 Leaderboard scope can be `daily`, `weekly`, or `all`.
 
+## Deployment
+
+### Frontend — GitHub Pages (already live)
+
+The `frontend/` app builds and deploys automatically via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) on every push to `main` that touches `frontend/**`. It:
+
+1. Runs `npm run build` with Vite's `base` set to `/guess-the-flag-name/` (matching the Pages subpath).
+2. Uploads `frontend/dist` as a Pages artifact and deploys it.
+3. `public/404.html` + a small restore script in `index.html` handle deep-link refreshes (e.g. reloading on `/login`), since GitHub Pages has no server-side router.
+
+No action needed here — this part is done and self-updating.
+
+### Backend — Render + MongoDB Atlas (manual, ~10 minutes)
+
+GitHub Pages only serves static files, so the Express/MongoDB API needs its own host. [`render.yaml`](render.yaml) in the repo root is a ready-to-use Render blueprint. To bring the API online:
+
+1. **Create a free MongoDB Atlas cluster:**
+   - Sign up at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas/register) and create a free M0 cluster.
+   - Under **Database Access**, add a user with a password.
+   - Under **Network Access**, add `0.0.0.0/0` (allow access from anywhere) so Render can reach it.
+   - Copy the connection string from **Connect → Drivers** — it looks like `mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/`.
+
+2. **Deploy the backend on Render:**
+   - Sign up at [render.com](https://render.com) and connect your GitHub account.
+   - Choose **New → Blueprint**, select this repository — Render will read `render.yaml` automatically.
+   - When prompted, paste the Atlas connection string as the `MONGO_URI` value.
+   - Render generates `JWT_SECRET` automatically and sets `CLIENT_URL` to `https://aalimbaba.github.io` (already in `render.yaml`) so CORS allows requests from the deployed frontend.
+   - Deploy — Render gives you a URL like `https://guess-the-flag-name-api.onrender.com`.
+
+3. **Point the frontend at the live API:**
+   - In the GitHub repo, go to **Settings → Secrets and variables → Actions → Variables**.
+   - Add a repository variable named `VITE_API_URL` set to `https://guess-the-flag-name-api.onrender.com/api` (use your actual Render URL).
+   - Re-run the "Deploy frontend to GitHub Pages" workflow (or push any change to `frontend/`) so the build picks up the new API URL.
+
+Once both are live, registration, login, saved games, and the leaderboard will work end-to-end on the public URL.
+
 ## Production Notes
 
-- Set `CLIENT_URL` to the deployed frontend origin.
-- Use a strong, private `JWT_SECRET`.
-- Use a managed MongoDB connection string for production.
-- Serve the frontend and API over HTTPS.
+- The frontend is deployed at [aalimbaba.github.io/guess-the-flag-name](https://aalimbaba.github.io/guess-the-flag-name/) and rebuilds automatically on push.
+- Set `CLIENT_URL` on the backend host to the deployed frontend origin (`https://aalimbaba.github.io`) — already configured in `render.yaml`.
+- Use a strong, private `JWT_SECRET` (Render's blueprint generates one automatically).
+- Use a managed MongoDB connection string (Atlas) for production, never a local instance.
+- Set the `VITE_API_URL` repository variable so GitHub Actions builds the frontend against the live API instead of `localhost`.
 - Keep secrets in environment variables and never commit the `.env` file.
 - Run `npm run build` and `npm run lint` before deployment.
 
@@ -177,7 +218,7 @@ Leaderboard scope can be `daily`, `weekly`, or `all`.
 - Add flag categories and regional game modes
 - Add achievements and player badges
 - Add password-reset and email-verification flows
-- Add a public production deployment
+- Deploy the backend to Render + MongoDB Atlas so the live demo is fully functional end-to-end
 - Improve accessibility and keyboard navigation
 
 ## Author
