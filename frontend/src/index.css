@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0b1220;
+  --bg: #F1E9D2;
 }
 
 html, body, #root {
@@ -11,9 +11,49 @@ html, body, #root {
 }
 
 body {
-  @apply bg-slate-950 text-slate-100;
+  @apply bg-parchment text-ink font-body;
+  background-image:
+    linear-gradient(rgba(32,38,59,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(32,38,59,0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
 }
 
+/* Legacy class kept so any un-migrated page still gets a full-height canvas */
 .gradient-bg {
-  @apply bg-animated-gradient min-h-screen;
+  @apply min-h-screen;
+}
+
+h1, h2, h3, h4 {
+  @apply font-display;
+}
+
+/* Compass rose watermark, used as a fixed background flourish */
+.compass-watermark {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+}
+
+/* Double-ruled "document" frame used on cards */
+.atlas-frame {
+  position: relative;
+  border: 1px solid theme('colors.brass.DEFAULT');
+  box-shadow: 0 0 0 4px theme('colors.parchment.light'), 0 0 0 5px theme('colors.brass.DEFAULT');
+}
+
+/* Rotated passport-stamp badge */
+.visa-stamp {
+  @apply font-display italic tracking-widest uppercase text-stamp-red;
+  border: 3px double currentColor;
+  border-radius: 50% / 40%;
+  transform: rotate(-7deg);
+  padding: 0.35rem 1.1rem;
+  background: radial-gradient(circle, rgba(156,59,59,0.06) 0%, transparent 70%);
+}
+
+.field-underline {
+  @apply w-full bg-transparent border-0 border-b-2 border-ink/20 focus:border-brass px-1 py-2 outline-none transition-colors placeholder:text-ink/40 font-body;
 }
