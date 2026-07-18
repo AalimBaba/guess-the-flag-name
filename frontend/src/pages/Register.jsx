@@ -131,7 +131,7 @@ export default function Register() {
                   Document Strength
                 </span>
                 <span className={`font-mono text-[10px] uppercase tracking-widest ${strengthColor}`}>
-                  {form.password ? strengthLabel : '—'}
+                  {form.password ? strengthLabel : '-'}
                 </span>
               </div>
               <div className="h-1 w-full bg-ink/10 rounded-full overflow-hidden">
@@ -147,7 +147,7 @@ export default function Register() {
               disabled={loading}
               className="w-full mt-2 rounded-full bg-ink text-parchment-light hover:bg-ink/90 transition-colors px-4 py-3 font-mono text-xs uppercase tracking-[0.2em] disabled:opacity-60"
             >
-              {loading ? 'Processing…' : 'Submit Application'}
+              {loading ? 'Processing...' : 'Submit Application'}
             </button>
           </form>
 

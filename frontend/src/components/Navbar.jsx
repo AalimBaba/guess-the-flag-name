@@ -4,7 +4,7 @@ import ThemeToggle from './ThemeToggle'
 import SoundToggle from './SoundToggle'
 
 export default function Navbar() {
-  const { user, logout } = useAuth()
+  const { user, logout, ready } = useAuth()
   const loc = useLocation()
   const nav = useNavigate()
 
@@ -36,8 +36,9 @@ export default function Navbar() {
         <nav className="flex items-center gap-1.5">
           <ThemeToggle />
           <SoundToggle />
-          {user ? (
+          {ready && user ? (
             <>
+              {navLink('/dashboard', 'Play', loc.pathname === '/dashboard')}
               {navLink('/leaderboard', 'Leaderboard', loc.pathname === '/leaderboard')}
               {navLink('/profile', user.username, loc.pathname === '/profile')}
               <button
@@ -49,6 +50,8 @@ export default function Navbar() {
             </>
           ) : (
             <>
+              {navLink('/dashboard', 'Play', loc.pathname === '/dashboard')}
+              {navLink('/leaderboard', 'Leaderboard', loc.pathname === '/leaderboard')}
               {navLink('/login', 'Login', loc.pathname === '/login')}
               <Link
                 to="/register"

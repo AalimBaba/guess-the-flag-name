@@ -3,6 +3,11 @@ import { Game } from '../models/Game.js'
 import { User } from '../models/User.js'
 
 const saveSchema = z.object({
+  playId: z.string().min(8),
+  collectionId: z.enum(['nations', 'states', 'historical', 'cities']),
+  collectionLabel: z.string().min(1).max(80),
+  roundsPlayed: z.number().int().min(1).max(100),
+  correctCount: z.number().int().min(0).max(100),
   score: z.number().int().min(0),
   accuracy: z.number().min(0).max(100),
   mode: z.enum(['typing', 'multiple']),
@@ -11,9 +16,11 @@ const saveSchema = z.object({
   answers: z
     .array(
       z.object({
-        country: z.string(),
+        prompt: z.string().min(1),
+        guess: z.string().min(1),
         correct: z.boolean(),
         timeMs: z.number().int().min(0),
+        itemId: z.string().optional(),
       })
     )
     .min(1),
@@ -22,6 +29,32 @@ const saveSchema = z.object({
 export const saveGame = async (req, res, next) => {
   try {
     const parsed = saveSchema.parse(req.body)
+    if (parsed.correctCount !== parsed.answers.filter((answer) => answer.correct).length) {
+      res.status(400)
+      throw new Error('Correct count does not match the answers submitted')
+    }
+    if (parsed.roundsPlayed !== parsed.answers.length) {
+      res.status(400)
+      throw new Error('Rounds played does not match the answers submitted')
+    }
+    const computedAccuracy = Math.round((parsed.correctCount / parsed.answers.length) * 100)
+    if (parsed.accuracy !== computedAccuracy) {
+      res.status(400)
+      throw new Error('Accuracy does not match the answers submitted')
+    }
+    if (parsed.streakMax > parsed.roundsPlayed || parsed.streakMax > parsed.correctCount) {
+      res.status(400)
+      throw new Error('Streak maximum is not possible for this result set')
+    }
+    if (parsed.score > parsed.roundsPlayed * 20) {
+      res.status(400)
+      throw new Error('Score exceeds the allowed maximum')
+    }
+    const existing = await Game.findOne({ userId: req.user.id, playId: parsed.playId })
+    if (existing) {
+      res.status(409)
+      throw new Error('Game session has already been saved')
+    }
     const game = await Game.create({
       ...parsed,
       userId: req.user.id,

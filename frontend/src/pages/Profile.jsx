@@ -1,16 +1,31 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api } from '../services/api'
 
 export default function Profile() {
   const [data, setData] = useState(null)
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
-  useEffect(() => {
-    api
-      .get('/profile')
-      .then((res) => setData(res.data))
-      .finally(() => setLoading(false))
+
+  const loadProfile = useCallback(async () => {
+    setLoading(true)
+    try {
+      const { data } = await api.get('/profile')
+      setData(data)
+      setError('')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not load profile')
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => {
+    void loadProfile()
+  }, [loadProfile])
+
   if (loading) return <div className="p-6">Loading...</div>
+  if (error) return <div className="p-6 text-stamp-red">{error}</div>
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center gap-4">

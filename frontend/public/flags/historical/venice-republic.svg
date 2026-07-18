@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Republic of Venice">
+<rect width="900" height="600" fill="#8f1d21"/>
+<rect y="40" width="900" height="520" fill="none" stroke="#f0cf76" stroke-width="24"/>
+<circle cx="455" cy="305" r="120" fill="#f0cf76"/>
+<path d="M395 280c55-95 190-70 185 40-3 70-75 120-145 100-38-11-62-42-61-76 0-22 7-43 21-64z" fill="#8f1d21"/>
+<circle cx="454" cy="262" r="18" fill="#f0cf76"/>
+</svg>

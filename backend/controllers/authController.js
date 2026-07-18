@@ -3,6 +3,13 @@ import jwt from 'jsonwebtoken'
 import { z } from 'zod'
 import { User } from '../models/User.js'
 
+const cookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+})
+
 const registerSchema = z
   .object({
     username: z.string().min(3).max(32),
@@ -32,16 +39,8 @@ export const register = async (req, res, next) => {
     })
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
     res
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
-      .json({
-        user: { id: user._id, username: user.username, email: user.email },
-        token,
-      })
+      .cookie('token', token, cookieOptions())
+      .json({ user: { id: user._id, username: user.username, email: user.email } })
   } catch (err) {
     next(err)
   }
@@ -67,21 +66,26 @@ export const login = async (req, res, next) => {
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' })
     res
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
-      .json({
-        user: { id: user._id, username: user.username, email: user.email },
-        token,
-      })
+      .cookie('token', token, cookieOptions())
+      .json({ user: { id: user._id, username: user.username, email: user.email } })
   } catch (err) {
     next(err)
   }
 }
 
 export const logout = async (req, res) => {
-  res.clearCookie('token').json({ ok: true })
+  res.clearCookie('token', cookieOptions()).json({ ok: true })
+}
+
+export const me = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id)
+    if (!user) {
+      res.status(404)
+      throw new Error('User not found')
+    }
+    res.json({ user: { id: user._id, username: user.username, email: user.email } })
+  } catch (err) {
+    next(err)
+  }
 }

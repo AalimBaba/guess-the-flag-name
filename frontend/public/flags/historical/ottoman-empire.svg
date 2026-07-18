@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Ottoman Empire">
+<rect width="900" height="600" fill="#c62828"/>
+<rect y="40" width="900" height="520" fill="none" stroke="#f7f1d1" stroke-width="24"/>
+<circle cx="470" cy="300" r="110" fill="#f7f1d1"/>
+<circle cx="505" cy="300" r="92" fill="#c62828"/>
+<polygon points="590,248 610,306 670,306 622,342 640,400 590,366 540,400 558,342 510,306 570,306" fill="#f7f1d1"/>
+</svg>

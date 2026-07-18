@@ -11,7 +11,8 @@ import Navbar from './components/Navbar.jsx'
 import './index.css'
 
 function PrivateRoute({ children }) {
-  const { user } = useAuth()
+  const { user, ready } = useAuth()
+  if (!ready) return null
   if (!user) return <Navigate to="/login" replace />
   return children
 }
@@ -26,14 +27,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route
               path="/profile"
               element={
@@ -42,14 +36,7 @@ export default function App() {
                 </PrivateRoute>
               }
             />
-            <Route
-              path="/leaderboard"
-              element={
-                <PrivateRoute>
-                  <Leaderboard />
-                </PrivateRoute>
-              }
-            />
+            <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </ErrorBoundary>
       </BrowserRouter>

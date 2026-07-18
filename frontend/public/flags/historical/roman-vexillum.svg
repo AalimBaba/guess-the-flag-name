@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Roman vexillum">
+<rect width="900" height="600" fill="#4a235a"/>
+<rect x="120" y="120" width="660" height="360" rx="18" fill="#b38a2e"/>
+<rect x="150" y="150" width="600" height="300" rx="14" fill="#4a235a"/>
+<circle cx="450" cy="300" r="108" fill="#b38a2e"/>
+<circle cx="450" cy="300" r="78" fill="#4a235a"/>
+<path d="M435 235h30l28 37-14 38 18 33-40 30-32-19-31 19-40-30 18-33-14-38 28-37z" fill="#b38a2e"/>
+<rect x="770" y="100" width="26" height="400" fill="#6f4f25"/>
+<rect x="756" y="100" width="54" height="18" fill="#c9a45d"/>
+</svg>

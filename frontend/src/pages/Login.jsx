@@ -23,6 +23,7 @@ export default function Login() {
       nav('/dashboard')
     }
   }
+
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   return (
@@ -84,7 +85,7 @@ export default function Login() {
               disabled={loading}
               className="w-full mt-2 rounded-full bg-ink text-parchment-light hover:bg-ink/90 transition-colors px-4 py-3 font-mono text-xs uppercase tracking-[0.2em] disabled:opacity-60"
             >
-              {loading ? 'Verifying…' : 'Stamp Passport & Enter'}
+              {loading ? 'Verifying...' : 'Stamp Passport & Enter'}
             </button>
           </form>
 
