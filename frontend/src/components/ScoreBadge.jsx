@@ -1,8 +1,12 @@
 export default function ScoreBadge({ score, streak }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="atlas-status flex h-9 items-center rounded-sm px-3 font-semibold">Score: {score}</div>
-      <div className="atlas-success flex h-9 items-center rounded-sm border px-3">Streak: {streak}</div>
+    <div className="contents">
+      <div className="atlas-status allow-wrap flex min-w-0 items-center justify-center rounded-sm px-2 text-center text-xs font-semibold sm:px-3 sm:text-sm">
+        Score: {score}
+      </div>
+      <div className="atlas-success allow-wrap flex min-h-11 min-w-0 items-center justify-center rounded-sm border px-2 text-center text-xs sm:px-3 sm:text-sm">
+        Streak: {streak}
+      </div>
     </div>
   )
 }

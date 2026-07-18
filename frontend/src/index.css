@@ -42,12 +42,24 @@ html.dark {
   --atlas-shadow: rgba(0, 0, 0, 0.42);
 }
 
-html, body, #root {
-  height: 100%;
+html {
+  min-height: 100%;
+  scroll-padding-top: calc(4.5rem + env(safe-area-inset-top));
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
 }
 
 body {
   @apply font-body;
+  min-height: 100dvh;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
   background-color: var(--atlas-bg);
   color: var(--atlas-ink);
   background-image:
@@ -58,9 +70,40 @@ body {
   transition: background-color 180ms ease, color 180ms ease;
 }
 
+#root {
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--atlas-border);
+  outline-offset: 3px;
+}
+
+@supports not (overflow: clip) {
+  body,
+  #root {
+    overflow-x: hidden;
+  }
+}
+
 /* Legacy class kept so any un-migrated page still gets a full-height canvas */
 .gradient-bg {
-  @apply min-h-screen;
+  min-height: 100dvh;
 }
 
 h1, h2, h3, h4 {
@@ -71,6 +114,9 @@ h1, h2, h3, h4 {
 .compass-watermark {
   position: fixed;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   pointer-events: none;
   z-index: 0;
   opacity: 0.06;
@@ -101,6 +147,8 @@ h1, h2, h3, h4 {
 
 .field-underline {
   @apply w-full border-0 border-b-2 px-1 py-2 outline-none transition-colors font-body;
+  min-height: 44px;
+  font-size: 1rem;
   background: transparent;
   border-color: var(--atlas-border-soft);
   color: var(--atlas-ink);
@@ -115,7 +163,58 @@ h1, h2, h3, h4 {
 }
 
 @layer components {
+  .page-shell {
+    width: 100%;
+    margin-inline: auto;
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .site-header {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .site-header-row,
+  .mobile-menu-inner {
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+
+  .mobile-menu-inner {
+    max-height: calc(100dvh - 4rem - env(safe-area-inset-top));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .auth-shell {
+    width: 100%;
+    min-height: calc(100dvh - 4.5rem - env(safe-area-inset-top));
+    padding-top: 2rem;
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+  }
+
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .allow-wrap {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .flag-stage {
+    width: 100%;
+    min-height: 180px;
+    height: min(52dvh, 420px);
+  }
+
   .atlas-panel {
+    max-width: 100%;
+    overflow-wrap: anywhere;
     background: var(--atlas-surface);
     border: 1px solid var(--atlas-border-soft);
     color: var(--atlas-ink);
@@ -139,6 +238,10 @@ h1, h2, h3, h4 {
   }
 
   .atlas-control {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    font-size: 1rem;
     background: var(--atlas-surface-raised);
     border: 1px solid var(--atlas-border-soft);
     color: var(--atlas-ink);
@@ -151,36 +254,31 @@ h1, h2, h3, h4 {
   }
 
   .atlas-primary {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     background: var(--atlas-primary-bg);
     border: 1px solid var(--atlas-primary-bg);
     color: var(--atlas-primary-text);
   }
 
-  .atlas-primary:hover:not(:disabled) {
-    filter: brightness(1.08);
-  }
-
   .atlas-secondary {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     background: transparent;
     border: 1px solid var(--atlas-border-soft);
     color: var(--atlas-ink);
   }
 
-  .atlas-secondary:hover:not(:disabled) {
-    background: var(--atlas-primary-bg);
-    color: var(--atlas-primary-text);
-  }
-
   .atlas-icon-button {
-    @apply inline-flex h-9 w-9 items-center justify-center rounded-sm transition-colors;
+    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm transition-colors;
     border: 1px solid transparent;
     color: var(--atlas-muted);
-  }
-
-  .atlas-icon-button:hover {
-    background: var(--atlas-surface-raised);
-    border-color: var(--atlas-border-soft);
-    color: var(--atlas-ink);
   }
 
   .atlas-error {
@@ -196,14 +294,70 @@ h1, h2, h3, h4 {
   }
 
   .atlas-status {
+    min-height: 44px;
     background: var(--atlas-surface-raised);
     border: 1px solid var(--atlas-border-soft);
     color: var(--atlas-ink);
   }
 
   .atlas-answer {
+    min-height: 52px;
+    overflow-wrap: anywhere;
     background: var(--atlas-surface-raised);
     border: 1px solid var(--atlas-border-soft);
+    color: var(--atlas-ink);
+  }
+
+  .atlas-answer-correct {
+    min-height: 52px;
+    overflow-wrap: anywhere;
+    background: var(--atlas-success-bg);
+    border-color: var(--atlas-success);
+    color: var(--atlas-success);
+  }
+
+  .atlas-answer-wrong {
+    min-height: 52px;
+    overflow-wrap: anywhere;
+    background: var(--atlas-danger-bg);
+    border-color: var(--atlas-danger);
+    color: var(--atlas-danger);
+  }
+
+  .atlas-answer-muted {
+    min-height: 52px;
+    overflow-wrap: anywhere;
+    background: var(--atlas-surface);
+    border-color: var(--atlas-border-soft);
+    color: var(--atlas-faint);
+    opacity: 0.6;
+  }
+}
+
+@media (min-width: 640px) {
+  .page-shell {
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+  }
+
+  .atlas-control {
+    font-size: 0.875rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .atlas-primary:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .atlas-secondary:hover:not(:disabled) {
+    background: var(--atlas-primary-bg);
+    color: var(--atlas-primary-text);
+  }
+
+  .atlas-icon-button:hover {
+    background: var(--atlas-surface-raised);
+    border-color: var(--atlas-border-soft);
     color: var(--atlas-ink);
   }
 
@@ -211,23 +365,37 @@ h1, h2, h3, h4 {
     border-color: var(--atlas-border);
     background: color-mix(in srgb, var(--atlas-surface-raised) 78%, var(--atlas-border));
   }
+}
 
-  .atlas-answer-correct {
-    background: var(--atlas-success-bg);
-    border-color: var(--atlas-success);
-    color: var(--atlas-success);
+@media (hover: none) {
+  .atlas-primary:active:not(:disabled),
+  .atlas-secondary:active:not(:disabled),
+  .atlas-icon-button:active,
+  .atlas-answer:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .auth-shell {
+    align-items: flex-start;
+    padding-top: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 
-  .atlas-answer-wrong {
-    background: var(--atlas-danger-bg);
-    border-color: var(--atlas-danger);
-    color: var(--atlas-danger);
+  .flag-stage {
+    min-height: 160px;
+    height: min(58dvh, 320px);
   }
+}
 
-  .atlas-answer-muted {
-    background: var(--atlas-surface);
-    border-color: var(--atlas-border-soft);
-    color: var(--atlas-faint);
-    opacity: 0.6;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

@@ -25,17 +25,17 @@ export default function Login() {
   const onChange = (event) => setForm({ ...form, [event.target.name]: event.target.value })
 
   return (
-    <div className="relative flex min-h-[calc(100vh-64px)] items-center justify-center px-4 py-12">
+    <main className="auth-shell relative flex items-start justify-center sm:items-center">
       <CompassWatermark />
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 min-w-0 w-full max-w-md">
         <div className="relative z-10 mb-[-1.1rem] flex justify-center">
-          <span className="visa-stamp text-sm">Re-Entry Permit</span>
+          <span className="visa-stamp max-w-[calc(100%_-_1.5rem)] text-center text-xs sm:text-sm">Re-Entry Permit</span>
         </div>
-        <div className="atlas-frame atlas-panel rounded-sm p-8 pt-10">
-          <p className="atlas-kicker mb-1 text-center font-mono text-[11px] uppercase tracking-[0.3em]">
+        <div className="atlas-frame atlas-panel rounded-sm p-5 pt-10 sm:p-8 sm:pt-10">
+          <p className="atlas-kicker allow-wrap mb-1 text-center font-mono text-[11px] uppercase tracking-[0.18em] sm:tracking-[0.3em]">
             Traveler Identification
           </p>
-          <h2 className="atlas-heading mb-6 text-center font-display text-3xl">Welcome Back</h2>
+          <h1 className="atlas-heading mb-6 text-center font-display text-2xl sm:text-3xl">Welcome Back</h1>
 
           {!apiAvailable && error !== ACCOUNTS_UNAVAILABLE_MESSAGE && (
             <div className="atlas-error mb-4 rounded-sm px-3 py-2 text-sm" role="status">
@@ -57,6 +57,8 @@ export default function Login() {
                 id="login-email"
                 name="email"
                 type="email"
+                autoComplete="email"
+                inputMode="email"
                 value={form.email}
                 onChange={onChange}
                 className="field-underline"
@@ -71,15 +73,16 @@ export default function Login() {
                 id="login-password"
                 name="password"
                 type={show ? 'text' : 'password'}
+                autoComplete="current-password"
                 value={form.password}
                 onChange={onChange}
-                className="field-underline pr-14"
+                className="field-underline pr-16"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShow((value) => !value)}
-                className="atlas-kicker absolute bottom-2 right-1 font-mono text-[10px] uppercase tracking-widest hover:text-[color:var(--atlas-ink)]"
+                className="atlas-kicker touch-target absolute bottom-0 right-0 flex items-center justify-center px-2 font-mono text-[10px] uppercase tracking-widest hover:text-[color:var(--atlas-ink)]"
                 aria-label={show ? 'Hide password' : 'Show password'}
               >
                 {show ? 'Hide' : 'Show'}
@@ -87,6 +90,7 @@ export default function Login() {
             </div>
 
             <button
+              type="submit"
               disabled={loading}
               className="atlas-primary mt-2 w-full rounded-full px-4 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors disabled:opacity-60"
             >
@@ -94,14 +98,14 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="atlas-copy mt-6 text-center text-sm">
+          <p className="atlas-copy allow-wrap mt-6 text-center text-sm">
             New traveler?{' '}
-            <Link className="atlas-accent hover:underline" to="/register">
+            <Link className="atlas-accent inline-flex min-h-11 items-center px-1 hover:underline" to="/register">
               Apply for a passport
             </Link>
           </p>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

@@ -1,4 +1,4 @@
-// Faint fixed compass-rose watermark — the signature background element for
+// Faint fixed compass-rose watermark, the signature background element for
 // the Atlas & Passport visual direction. Rendered once, low opacity, ignores
 // pointer events, sits behind all page content.
 export default function CompassWatermark() {

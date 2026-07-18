@@ -223,12 +223,16 @@ export default function Dashboard() {
   }, [current, gameStarted, mode, optionsForCurrent])
 
   if (ready === false) {
-    return <div className="atlas-copy mx-auto max-w-4xl px-4 py-10">Restoring your session...</div>
+    return (
+      <div className="page-shell atlas-copy max-w-4xl py-10" role="status">
+        Restoring your session...
+      </div>
+    )
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <main className="page-shell max-w-5xl space-y-4 py-4 sm:space-y-6 sm:py-8">
+      <div className="flex flex-col gap-4">
         <ModeToggle
           collections={collectionList}
           collectionId={collectionId}
@@ -240,43 +244,45 @@ export default function Dashboard() {
           roundLimit={roundLimit}
           setRoundLimit={changeRoundLimit}
         />
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid w-full grid-cols-3 gap-2 sm:ml-auto sm:w-auto sm:min-w-[360px]">
           <Timer seconds={seconds} />
           <ScoreBadge score={score} streak={streak} />
         </div>
       </div>
 
       {!gameStarted && !gameOver ? (
-        <section className="atlas-panel space-y-6 rounded-sm p-8 md:p-10">
+        <section className="atlas-panel space-y-6 rounded-sm p-5 sm:p-8 lg:p-10">
           <div className="space-y-3">
-            <p className="atlas-kicker font-mono text-[11px] uppercase tracking-[0.3em]">{collection.label}</p>
-            <h1 className="atlas-heading font-display text-4xl md:text-5xl">
+            <p className="atlas-kicker allow-wrap font-mono text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.3em]">
+              {collection.label}
+            </p>
+            <h1 className="atlas-heading allow-wrap font-display text-3xl leading-tight sm:text-4xl lg:text-5xl">
               Identify the flag before the loop closes
             </h1>
-            <p className="atlas-copy max-w-3xl leading-7">
+            <p className="atlas-copy max-w-3xl text-sm leading-6 sm:text-base sm:leading-7">
               Play with national flags, U.S. states, municipal standards, or historical reconstructions.
               Guest runs stay local; sign in to save scores and climb the leaderboard.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-3 min-[480px]:flex-row min-[480px]:flex-wrap min-[480px]:items-center">
             <button
               type="button"
               onClick={startGame}
               disabled={pool.length === 0}
-              className="atlas-primary rounded-full px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] disabled:opacity-50"
+              className="atlas-primary w-full rounded-full px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] disabled:opacity-50 min-[480px]:w-auto"
             >
               Start Run
             </button>
             {user ? (
-              <div className="atlas-copy self-center text-sm">
+              <div className="atlas-copy allow-wrap self-center text-sm">
                 Signed in as <span className="atlas-heading">{user.username}</span>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => navigate('/login')}
-                className="atlas-secondary rounded-full px-5 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors"
+                className="atlas-secondary w-full rounded-full px-5 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors min-[480px]:w-auto"
               >
                 Sign in to save
               </button>
@@ -288,16 +294,24 @@ export default function Dashboard() {
           {current && (
             <div className="relative">
               <FlagCard src={current.asset} alt={current.name} />
-              <div className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.3em] text-white">
+              <div className="allow-wrap absolute left-2 top-2 max-w-[calc(100%_-_1rem)] rounded-sm bg-black/75 px-2 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white sm:left-4 sm:top-4 sm:max-w-[calc(100%_-_2rem)] sm:rounded-full sm:px-3 sm:tracking-[0.3em]">
                 {collection.label}
               </div>
               {lastResult && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-sm bg-black/55 backdrop-blur-[2px]">
-                  <div className={`mb-2 text-4xl font-black ${lastResult.correct ? 'text-green-300' : 'text-red-300'}`}>
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center rounded-sm bg-black/60 px-4 text-center backdrop-blur-[2px]"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <div className={`allow-wrap mb-2 text-3xl font-black sm:text-4xl ${lastResult.correct ? 'text-green-300' : 'text-red-300'}`}>
                     {lastResult.correct ? 'Correct' : 'Wrong'}
                   </div>
-                  {!lastResult.correct && <div className="mb-2 text-lg font-semibold text-white">{current.name}</div>}
-                  <div className={`text-2xl font-bold ${lastResult.scoreChange > 0 ? 'text-green-300' : 'text-red-300'}`}>
+                  {!lastResult.correct && (
+                    <div className="allow-wrap mb-2 max-w-full text-base font-semibold text-white sm:text-lg">
+                      {current.name}
+                    </div>
+                  )}
+                  <div className={`text-xl font-bold sm:text-2xl ${lastResult.scoreChange > 0 ? 'text-green-300' : 'text-red-300'}`}>
                     {lastResult.scoreChange > 0 ? `+${lastResult.scoreChange}` : lastResult.scoreChange} pts
                   </div>
                 </div>
@@ -307,11 +321,11 @@ export default function Dashboard() {
 
           {gameStarted && (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="atlas-copy font-mono text-xs uppercase tracking-[0.2em]">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <div className="atlas-copy font-mono text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em]">
                   Round {Math.min(roundsPlayed + 1, roundsLimit)} of {roundsLimit}
                 </div>
-                <div className="atlas-copy text-sm">
+                <div className="atlas-copy text-xs sm:text-sm">
                   {user ? 'Score will be saved automatically.' : 'Guest runs stay on this device only.'}
                 </div>
               </div>
@@ -342,7 +356,7 @@ export default function Dashboard() {
                         type="button"
                         disabled={isProcessing}
                         onClick={() => handleAnswer(option.name)}
-                        className={`${buttonClass} rounded-sm border px-4 py-4 text-left font-medium transition-all`}
+                        className={`${buttonClass} allow-wrap w-full rounded-sm border px-4 py-3 text-left text-sm font-medium transition-all sm:py-4 sm:text-base`}
                       >
                         {option.name}
                       </button>
@@ -355,12 +369,16 @@ export default function Dashboard() {
         </section>
       )}
 
-      {saveError && <div className="atlas-error rounded-sm px-4 py-3 text-sm">{saveError}</div>}
+      {saveError && (
+        <div className="atlas-error allow-wrap rounded-sm px-4 py-3 text-sm" role="alert">
+          {saveError}
+        </div>
+      )}
 
       {gameOver && (
-        <div className="atlas-panel space-y-5 rounded-sm p-6 md:p-8">
-          <h2 className="atlas-heading font-display text-3xl">Run complete</h2>
-          <div className="grid gap-3 md:grid-cols-3">
+        <section className="atlas-panel space-y-5 rounded-sm p-5 sm:p-6 md:p-8">
+          <h2 className="atlas-heading font-display text-2xl sm:text-3xl">Run complete</h2>
+          <div className="grid gap-3 min-[480px]:grid-cols-3">
             <Stat label="Final Score" value={score} />
             <Stat
               label="Accuracy"
@@ -372,17 +390,17 @@ export default function Dashboard() {
             />
             <Stat label="Best Streak" value={streakMax} />
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-3 min-[480px]:flex-row min-[480px]:flex-wrap">
             <button
               type="button"
-              className="atlas-primary rounded-full px-6 py-3 font-mono text-xs uppercase tracking-[0.2em]"
+              className="atlas-primary w-full rounded-full px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] min-[480px]:w-auto"
               onClick={startGame}
             >
               Play Again
             </button>
             <button
               type="button"
-              className="atlas-secondary rounded-full px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors"
+              className="atlas-secondary w-full rounded-full px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors min-[480px]:w-auto"
               onClick={() =>
                 window.open(
                   `https://twitter.com/intent/tweet?text=${encodeURIComponent(`I scored ${score} on Guess the Flag Name!`)}`
@@ -392,14 +410,21 @@ export default function Dashboard() {
               Share
             </button>
           </div>
-        </div>
+        </section>
       )}
-    </div>
+    </main>
   )
 }
 
 function TypingForm({ submitTyping, disabled, prompt }) {
   const [query, setQuery] = useState('')
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      inputRef.current?.focus()
+    }
+  }, [])
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -409,21 +434,25 @@ function TypingForm({ submitTyping, disabled, prompt }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="scroll-mt-24 space-y-3">
       <div className="flex flex-col gap-3 sm:flex-row">
         <input
-          autoFocus
+          ref={inputRef}
           disabled={disabled}
           name="answer"
           aria-label="Flag answer"
+          autoComplete="off"
+          autoCapitalize="words"
+          enterKeyHint="send"
           placeholder={prompt}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          className="atlas-control flex-1 rounded-sm px-4 py-3 text-lg disabled:opacity-50"
+          className="atlas-control min-w-0 flex-1 rounded-sm px-4 py-3 text-base disabled:opacity-50 sm:text-lg"
         />
         <button
+          type="submit"
           disabled={disabled}
-          className="atlas-primary rounded-sm px-6 py-3 font-bold transition-colors disabled:opacity-50"
+          className="atlas-primary w-full rounded-sm px-6 py-3 font-bold transition-colors disabled:opacity-50 sm:w-auto"
         >
           Submit
         </button>
@@ -434,9 +463,9 @@ function TypingForm({ submitTyping, disabled, prompt }) {
 
 function Stat({ label, value }) {
   return (
-    <div className="atlas-status rounded-sm px-4 py-3">
-      <div className="atlas-copy text-xs uppercase tracking-[0.2em]">{label}</div>
-      <div className="atlas-heading text-2xl font-bold">{value}</div>
+    <div className="atlas-status min-w-0 rounded-sm px-4 py-3">
+      <div className="atlas-copy allow-wrap text-xs uppercase tracking-[0.16em] sm:tracking-[0.2em]">{label}</div>
+      <div className="atlas-heading allow-wrap text-xl font-bold sm:text-2xl">{value}</div>
     </div>
   )
 }

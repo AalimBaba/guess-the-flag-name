@@ -12,7 +12,13 @@ import './index.css'
 
 function PrivateRoute({ children }) {
   const { user, ready } = useAuth()
-  if (!ready) return null
+  if (!ready) {
+    return (
+      <div className="page-shell atlas-copy max-w-4xl py-10" role="status">
+        Restoring your session...
+      </div>
+    )
+  }
   if (!user) return <Navigate to="/login" replace />
   return children
 }
