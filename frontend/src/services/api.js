@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { apiStatus } from './apiConfig'
+import { apiStatus, isGitHubPagesHost } from './apiConfig'
 
 export const api = axios.create({
   baseURL: apiStatus.baseURL || undefined,
@@ -12,5 +12,13 @@ api.interceptors.request.use((config) => {
     error.code = 'API_NOT_CONFIGURED'
     return Promise.reject(error)
   }
+
+  const target = new URL(config.url || '', config.baseURL)
+  if (isGitHubPagesHost(target.hostname)) {
+    const error = new Error('GitHub Pages cannot be used as the API server')
+    error.code = 'INVALID_API_HOST'
+    return Promise.reject(error)
+  }
+
   return config
 })

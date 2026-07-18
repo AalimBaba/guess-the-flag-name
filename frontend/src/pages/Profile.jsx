@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { UserRound } from 'lucide-react'
 import { api } from '../services/api'
-import { getApiErrorMessage } from '../services/apiConfig'
+import { ACCOUNTS_UNAVAILABLE_MESSAGE, apiStatus, getApiErrorMessage } from '../services/apiConfig'
 
 export default function Profile() {
   const [data, setData] = useState(null)
@@ -10,6 +10,13 @@ export default function Profile() {
 
   const loadProfile = useCallback(async () => {
     setLoading(true)
+    if (!apiStatus.configured) {
+      setData(null)
+      setError(ACCOUNTS_UNAVAILABLE_MESSAGE)
+      setLoading(false)
+      return
+    }
+
     try {
       const { data: profile } = await api.get('/profile')
       setData(profile)

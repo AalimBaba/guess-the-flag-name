@@ -10,6 +10,11 @@ vi.mock('../services/api', () => ({
   api: { get: mocks.get },
 }))
 
+vi.mock('../services/apiConfig', async (importOriginal) => {
+  const actual = await importOriginal()
+  return { ...actual, apiStatus: { baseURL: 'https://api.example.test/api', configured: true } }
+})
+
 vi.mock('../context/useAuth.js', () => ({
   useAuth: () => ({ user: { id: 'user-1', username: 'Atlas Traveler' } }),
 }))

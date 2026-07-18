@@ -1,6 +1,11 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '../services/api'
-import { apiStatus, getApiErrorMessage, hasServerResponse } from '../services/apiConfig'
+import {
+  ACCOUNTS_UNAVAILABLE_MESSAGE,
+  apiStatus,
+  getApiErrorMessage,
+  hasServerResponse,
+} from '../services/apiConfig'
 
 const AuthContext = createContext(null)
 export default AuthContext
@@ -11,6 +16,12 @@ export function AuthProvider({ children }) {
   const [ready, setReady] = useState(false)
   const [apiAvailable, setApiAvailable] = useState(apiStatus.configured)
   const refreshUser = useCallback(async () => {
+    if (!apiStatus.configured) {
+      setUser(null)
+      setApiAvailable(false)
+      return null
+    }
+
     const { data } = await api.get('/me')
     setUser(data.user)
     setApiAvailable(true)
@@ -18,6 +29,13 @@ export function AuthProvider({ children }) {
   }, [])
 
   useEffect(() => {
+    if (!apiStatus.configured) {
+      setUser(null)
+      setApiAvailable(false)
+      setReady(true)
+      return undefined
+    }
+
     let mounted = true
     api
       .get('/me')
@@ -42,6 +60,10 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = useCallback(async (email, password) => {
+    if (!apiStatus.configured) {
+      return { ok: false, message: ACCOUNTS_UNAVAILABLE_MESSAGE }
+    }
+
     setLoading(true)
     try {
       const { data } = await api.post('/login', { email, password })
@@ -57,6 +79,10 @@ export function AuthProvider({ children }) {
   }, [])
 
   const register = useCallback(async (payload) => {
+    if (!apiStatus.configured) {
+      return { ok: false, message: ACCOUNTS_UNAVAILABLE_MESSAGE }
+    }
+
     setLoading(true)
     try {
       const { data } = await api.post('/register', payload)
@@ -72,6 +98,12 @@ export function AuthProvider({ children }) {
   }, [])
 
   const logout = useCallback(async () => {
+    if (!apiStatus.configured) {
+      setUser(null)
+      setApiAvailable(false)
+      return
+    }
+
     try {
       await api.post('/logout')
       setApiAvailable(true)

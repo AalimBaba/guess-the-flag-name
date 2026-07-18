@@ -19,4 +19,9 @@ for (const collection of Object.values(collections)) {
   }
 }
 
-console.log('Verified all local flag assets exist')
+await Promise.all([
+  assertExists('/assets/flag-fallback.svg'),
+  assertExists('/audio/atlas-ambient.wav'),
+])
+
+console.log('Verified all local flag, fallback, and audio assets exist')

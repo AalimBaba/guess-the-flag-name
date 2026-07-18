@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Volume2, VolumeX } from 'lucide-react'
+import { publicAssetUrl } from '../utils/publicAssetUrl'
 
 export default function SoundToggle() {
   const [enabled, setEnabled] = useState(false)
   const audioRef = useRef(null)
 
   useEffect(() => {
-    audioRef.current = new Audio(
-      'https://cdn.pixabay.com/download/audio/2023/02/28/audio_fcbb5dc44b.mp3?filename=relaxing-music-141051.mp3'
-    )
+    audioRef.current = new Audio(publicAssetUrl('/audio/atlas-ambient.wav'))
+    audioRef.current.preload = 'none'
     audioRef.current.loop = true
     return () => audioRef.current?.pause()
   }, [])

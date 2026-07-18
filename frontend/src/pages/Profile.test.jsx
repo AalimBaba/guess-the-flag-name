@@ -10,6 +10,11 @@ vi.mock('../services/api', () => ({
   api: { get: mocks.get },
 }))
 
+vi.mock('../services/apiConfig', async (importOriginal) => {
+  const actual = await importOriginal()
+  return { ...actual, apiStatus: { baseURL: 'https://api.example.test/api', configured: true } }
+})
+
 describe('Profile', () => {
   beforeEach(() => {
     mocks.get.mockReset()

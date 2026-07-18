@@ -27,7 +27,7 @@ describe('Dashboard game lifecycle', () => {
     vi.useRealTimers()
   })
 
-  it('starts once, renders the first flag, and starts one timer', () => {
+  it('starts a guest run, renders the first flag, and starts one timer', () => {
     renderDashboard()
 
     fireEvent.click(screen.getByRole('button', { name: 'Start Run' }))

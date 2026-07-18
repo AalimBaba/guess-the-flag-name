@@ -2,7 +2,7 @@
 
 **🔗 Live demo:** [https://aalimbaba.github.io/guess-the-flag-name/](https://aalimbaba.github.io/guess-the-flag-name/)
 
-> **Status:** The frontend is deployed and live on GitHub Pages. The backend (auth, game saves, leaderboard) is not yet hosted anywhere public, so the live demo will load the interface but sign-up/login/leaderboard calls won't succeed until the API is deployed — see [Deployment](#deployment) below for the one-time setup to make that live too.
+> **Status:** The frontend is deployed and live on GitHub Pages in guest mode. The backend (auth, game saves, profile, and leaderboard) is optional and is not yet hosted publicly; account screens explain that accounts are temporarily unavailable without making failed requests.
 
 A full-stack geography quiz that challenges players to identify countries from their flags before the timer runs out. Choose a game mode and difficulty, build scoring streaks, track your accuracy, and compete on daily, weekly, and all-time leaderboards.
 
@@ -175,7 +175,7 @@ Leaderboard scope can be `daily`, `weekly`, or `all`.
 The `frontend/` app builds and deploys automatically via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) on every push to `main` that touches `frontend/**`. It:
 
 1. Validates datasets, local assets, and committed files, then runs ESLint and frontend tests.
-2. Runs `npm run build` with Vite's `base` set to `/guess-the-flag-name/` and the repository `VITE_API_URL` variable.
+2. Runs `npm run build` with Vite's `base` set to `/guess-the-flag-name/`. `VITE_API_URL` is optional; when absent, the site builds in guest-only mode.
 3. Uploads `frontend/dist` as a Pages artifact and deploys it.
 4. `public/404.html` + a small restore script in `index.html` handle deep-link refreshes (e.g. reloading on `/login`), since GitHub Pages has no server-side router.
 
@@ -211,7 +211,7 @@ Once both are live, registration, login, saved games, and the leaderboard will w
 - Set `CLIENT_URL` on the backend host to the deployed frontend origin (`https://aalimbaba.github.io`) — already configured in `render.yaml`.
 - Use a strong, private `JWT_SECRET` (Render's blueprint generates one automatically).
 - Use a managed MongoDB connection string (Atlas) for production, never a local instance.
-- Set the `VITE_API_URL` repository variable so GitHub Actions builds the frontend against the live API instead of `localhost`.
+- Set the optional `VITE_API_URL` repository variable only after a public API is available. Without it, GitHub Actions builds the guest-only site and makes no account requests.
 - Keep secrets in environment variables and never commit the `.env` file.
 - Run `npm run build` and `npm run lint` before deployment.
 

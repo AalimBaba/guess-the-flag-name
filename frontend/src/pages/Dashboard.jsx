@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
-import { getApiErrorMessage } from '../services/apiConfig'
+import { apiStatus, getApiErrorMessage } from '../services/apiConfig'
 import { useAuth } from '../context/useAuth.js'
 import { collectionList } from '../data/collections'
 import { useTimer } from '../hooks/useTimer'
@@ -89,7 +89,7 @@ export default function Dashboard() {
       const correctCount = answers.filter((answer) => answer.correct).length
       const accuracy = answers.length ? Math.round((correctCount / answers.length) * 100) : 0
 
-      if (!user || answers.length === 0) return
+      if (!apiStatus.configured || !user || answers.length === 0) return
 
       try {
         await api.post('/game/save', {

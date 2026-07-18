@@ -1,18 +1,29 @@
 export const ACCOUNTS_UNAVAILABLE_MESSAGE =
-  'Accounts are temporarily unavailable. You can continue as a guest.'
+  'Accounts are temporarily unavailable. Continue as a guest.'
 
-function normalizeBaseUrl(value) {
-  return value?.trim().replace(/\/+$/, '') || ''
+export function isGitHubPagesHost(hostname) {
+  return hostname === 'github.io' || hostname.endsWith('.github.io')
 }
 
-const configuredBaseUrl = normalizeBaseUrl(import.meta.env.VITE_API_URL)
-const developmentBaseUrl = import.meta.env.DEV ? 'http://localhost:4000/api' : ''
-const baseURL = configuredBaseUrl || developmentBaseUrl
+export function normalizeApiBaseUrl(value) {
+  const candidate = value?.trim()
+  if (!candidate) return ''
+
+  try {
+    const url = new URL(candidate)
+    if (!['http:', 'https:'].includes(url.protocol)) return ''
+    if (isGitHubPagesHost(url.hostname)) return ''
+    return url.href.replace(/\/+$/, '')
+  } catch {
+    return ''
+  }
+}
+
+const configuredBaseUrl = normalizeApiBaseUrl(import.meta.env.VITE_API_URL)
 
 export const apiStatus = Object.freeze({
-  baseURL,
-  configured: Boolean(baseURL),
-  usesDevelopmentFallback: !configuredBaseUrl && Boolean(developmentBaseUrl),
+  baseURL: configuredBaseUrl,
+  configured: Boolean(configuredBaseUrl),
 })
 
 export function hasServerResponse(error) {
@@ -20,7 +31,7 @@ export function hasServerResponse(error) {
 }
 
 export function getApiErrorMessage(error, fallbackMessage) {
-  if (!apiStatus.configured || !hasServerResponse(error)) {
+  if (!hasServerResponse(error)) {
     return ACCOUNTS_UNAVAILABLE_MESSAGE
   }
 

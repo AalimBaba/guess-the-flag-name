@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../services/api'
-import { getApiErrorMessage } from '../services/apiConfig'
+import { ACCOUNTS_UNAVAILABLE_MESSAGE, apiStatus, getApiErrorMessage } from '../services/apiConfig'
 import { useAuth } from '../context/useAuth.js'
 
 export default function Leaderboard() {
@@ -12,6 +12,13 @@ export default function Leaderboard() {
 
   const loadLeaderboard = useCallback(async () => {
     setLoading(true)
+    if (!apiStatus.configured) {
+      setRows([])
+      setError(ACCOUNTS_UNAVAILABLE_MESSAGE)
+      setLoading(false)
+      return
+    }
+
     try {
       const { data } = await api.get('/leaderboard', { params: { scope } })
       setRows(data)

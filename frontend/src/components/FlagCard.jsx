@@ -1,14 +1,10 @@
 import { useState } from 'react'
-import { ImageOff } from 'lucide-react'
-
-function resolveAssetPath(src) {
-  if (/^(?:https?:|data:|blob:)/i.test(src)) return src
-  return `${import.meta.env.BASE_URL}${src.replace(/^\/+/, '')}`
-}
+import { publicAssetUrl } from '../utils/publicAssetUrl'
 
 export default function FlagCard({ src, alt }) {
   const [failedSrc, setFailedSrc] = useState(null)
-  const resolvedSrc = resolveAssetPath(src)
+  const resolvedSrc = publicAssetUrl(src)
+  const fallbackSrc = publicAssetUrl('/assets/flag-fallback.svg')
   const imageFailed = failedSrc === resolvedSrc
 
   return (
@@ -19,7 +15,7 @@ export default function FlagCard({ src, alt }) {
           role="img"
           aria-label={`${alt || 'Flag'} image unavailable`}
         >
-          <ImageOff size={36} aria-hidden="true" />
+          <img src={fallbackSrc} alt="" className="h-16 w-20 object-contain" aria-hidden="true" />
           <span className="allow-wrap font-mono text-xs uppercase tracking-widest">Flag image unavailable</span>
         </div>
       ) : (
