@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Navbar from './Navbar'
@@ -60,7 +60,9 @@ describe('Navbar mobile navigation', () => {
     const menu = screen.getByRole('navigation', { name: 'Mobile navigation' })
     expect(within(menu).getByRole('link', { name: 'Atlas Traveler' })).toHaveAttribute('aria-current', 'page')
 
-    fireEvent.click(within(menu).getByRole('button', { name: 'Logout' }))
+    await act(async () => {
+      fireEvent.click(within(menu).getByRole('button', { name: 'Logout' }))
+    })
     expect(auth.logout).toHaveBeenCalledOnce()
   })
 })
