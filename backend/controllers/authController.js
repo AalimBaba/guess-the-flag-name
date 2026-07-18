@@ -3,10 +3,14 @@ import jwt from 'jsonwebtoken'
 import { z } from 'zod'
 import { User } from '../models/User.js'
 
-const cookieOptions = () => ({
+const baseCookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+})
+
+const cookieOptions = () => ({
+  ...baseCookieOptions(),
   maxAge: 7 * 24 * 60 * 60 * 1000,
 })
 
@@ -74,7 +78,7 @@ export const login = async (req, res, next) => {
 }
 
 export const logout = async (req, res) => {
-  res.clearCookie('token', cookieOptions()).json({ ok: true })
+  res.clearCookie('token', baseCookieOptions()).json({ ok: true })
 }
 
 export const me = async (req, res, next) => {

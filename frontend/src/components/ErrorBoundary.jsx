@@ -14,9 +14,9 @@ export default class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-6">
-          <h2 className="text-xl font-bold mb-2">Something went wrong.</h2>
-          <pre className="text-sm">{String(this.state.error)}</pre>
+        <div className="atlas-error m-6 rounded-sm p-6">
+          <h2 className="mb-2 text-xl font-bold">Something went wrong.</h2>
+          <pre className="overflow-auto text-sm">{String(this.state.error)}</pre>
         </div>
       )
     }

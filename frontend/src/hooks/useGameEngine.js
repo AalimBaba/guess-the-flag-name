@@ -32,9 +32,9 @@ function isAliasMatch(entry, guess) {
 
 function shuffle(items) {
   const next = [...items]
-  for (let i = next.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[next[i], next[j]] = [next[j], next[i]]
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    ;[next[index], next[randomIndex]] = [next[randomIndex], next[index]]
   }
   return next
 }
@@ -53,6 +53,7 @@ export function useGameEngine({ collectionId = 'nations', difficulty = 'medium',
   const [streakMax, setStreakMax] = useState(0)
   const [answers, setAnswers] = useState([])
   const [lastResult, setLastResult] = useState(null)
+  const usedIdsRef = useRef(new Set())
   const roundStartedAt = useRef(0)
 
   const collection = useMemo(() => getCollectionById(collectionId) || collectionList[0], [collectionId])
@@ -60,13 +61,17 @@ export function useGameEngine({ collectionId = 'nations', difficulty = 'medium',
   const pool = useMemo(() => {
     if (!collection) return []
     const selectedRank = DIFFICULTY_RANK[difficulty] ?? DIFFICULTY_RANK.medium
-    const filtered = collection.collections.filter((entry) => (DIFFICULTY_RANK[entry.difficulty] ?? 2) <= selectedRank)
+    const filtered = collection.collections.filter(
+      (entry) => (DIFFICULTY_RANK[entry.difficulty] ?? DIFFICULTY_RANK.hard) <= selectedRank
+    )
     return filtered.length > 0 ? filtered : collection.collections
   }, [collection, difficulty])
 
-  const hasMore = usedIds.length < Math.min(roundLimit, pool.length)
+  const targetRounds = Math.min(roundLimit, pool.length)
+  const hasMore = usedIds.length < targetRounds
 
   const reset = useCallback(() => {
+    usedIdsRef.current = new Set()
     setSessionId(crypto.randomUUID())
     setUsedIds([])
     setCurrent(null)
@@ -79,31 +84,62 @@ export function useGameEngine({ collectionId = 'nations', difficulty = 'medium',
     roundStartedAt.current = 0
   }, [])
 
+  const startSession = useCallback(() => {
+    const first = pool.length > 0 && targetRounds > 0 ? pickRandom(pool) : null
+    const nextUsedIds = new Set(first ? [first.id] : [])
+
+    usedIdsRef.current = nextUsedIds
+    setSessionId(crypto.randomUUID())
+    setUsedIds([...nextUsedIds])
+    setCurrent(first)
+    setRoundsPlayed(0)
+    setScore(0)
+    setStreak(0)
+    setStreakMax(0)
+    setAnswers([])
+    setLastResult(null)
+    roundStartedAt.current = first ? performance.now() : 0
+
+    return first
+  }, [pool, targetRounds])
+
   const nextFlag = useCallback(() => {
-    const remaining = pool.filter((entry) => !usedIds.includes(entry.id))
-    if (remaining.length === 0 || usedIds.length >= roundLimit) {
+    const used = usedIdsRef.current
+    if (used.size >= targetRounds) {
       setCurrent(null)
       return null
     }
+
+    const remaining = pool.filter((entry) => !used.has(entry.id))
+    if (remaining.length === 0) {
+      setCurrent(null)
+      return null
+    }
+
     const next = pickRandom(remaining)
+    const nextUsedIds = new Set(used)
+    nextUsedIds.add(next.id)
+    usedIdsRef.current = nextUsedIds
+    setUsedIds([...nextUsedIds])
     setCurrent(next)
-    setUsedIds((prev) => [...prev, next.id])
     setLastResult(null)
     roundStartedAt.current = performance.now()
     return next
-  }, [pool, roundLimit, usedIds])
+  }, [pool, targetRounds])
 
   const submitAnswer = useCallback(
     (guess) => {
       if (!current) return null
       const correct = isAliasMatch(current, guess)
-      const elapsed = roundStartedAt.current ? Math.max(0, Math.round(performance.now() - roundStartedAt.current)) : 0
+      const elapsed = roundStartedAt.current
+        ? Math.max(0, Math.round(performance.now() - roundStartedAt.current))
+        : 0
       const scoreChange = correct ? 10 + Math.min(streak, 5) : -4
 
       setScore((value) => Math.max(0, value + scoreChange))
       setStreak((value) => {
         const next = correct ? value + 1 : 0
-        setStreakMax((max) => Math.max(max, next))
+        setStreakMax((maximum) => Math.max(maximum, next))
         return next
       })
       setRoundsPlayed((value) => value + 1)
@@ -128,14 +164,13 @@ export function useGameEngine({ collectionId = 'nations', difficulty = 'medium',
     if (!current) return []
     const options = [current]
     const others = pool.filter((entry) => entry.id !== current.id)
+
     while (options.length < 4 && others.length > 0) {
       const candidate = pickRandom(others)
-      if (!options.find((item) => item.id === candidate.id)) {
-        options.push(candidate)
-      }
-      const index = others.findIndex((item) => item.id === candidate.id)
-      if (index >= 0) others.splice(index, 1)
+      options.push(candidate)
+      others.splice(others.indexOf(candidate), 1)
     }
+
     return shuffle(options)
   }, [current, pool])
 
@@ -152,6 +187,7 @@ export function useGameEngine({ collectionId = 'nations', difficulty = 'medium',
       roundsPlayed,
       hasMore,
       lastResult,
+      startSession,
       nextFlag,
       reset,
       submitAnswer,
@@ -169,6 +205,7 @@ export function useGameEngine({ collectionId = 'nations', difficulty = 'medium',
       roundsPlayed,
       hasMore,
       lastResult,
+      startSession,
       nextFlag,
       reset,
       submitAnswer,

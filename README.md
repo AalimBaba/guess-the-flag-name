@@ -142,6 +142,8 @@ Open the Vite URL shown in the terminal, normally `http://localhost:5173`.
 npm run dev       # Start the Vite development server
 npm run build     # Create a production build
 npm run lint      # Run ESLint
+npm run test      # Run frontend regression tests
+npm run check     # Validate data/assets/secrets, lint, test, and build
 npm run preview   # Preview the production build
 ```
 
@@ -172,9 +174,10 @@ Leaderboard scope can be `daily`, `weekly`, or `all`.
 
 The `frontend/` app builds and deploys automatically via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) on every push to `main` that touches `frontend/**`. It:
 
-1. Runs `npm run build` with Vite's `base` set to `/guess-the-flag-name/` (matching the Pages subpath).
-2. Uploads `frontend/dist` as a Pages artifact and deploys it.
-3. `public/404.html` + a small restore script in `index.html` handle deep-link refreshes (e.g. reloading on `/login`), since GitHub Pages has no server-side router.
+1. Validates datasets, local assets, and committed files, then runs ESLint and frontend tests.
+2. Runs `npm run build` with Vite's `base` set to `/guess-the-flag-name/` and the repository `VITE_API_URL` variable.
+3. Uploads `frontend/dist` as a Pages artifact and deploys it.
+4. `public/404.html` + a small restore script in `index.html` handle deep-link refreshes (e.g. reloading on `/login`), since GitHub Pages has no server-side router.
 
 No action needed here — this part is done and self-updating.
 
@@ -214,7 +217,7 @@ Once both are live, registration, login, saved games, and the leaderboard will w
 
 ## Roadmap
 
-- Add automated frontend and backend tests
+- Add backend integration tests
 - Add flag categories and regional game modes
 - Add achievements and player badges
 - Add password-reset and email-verification flows

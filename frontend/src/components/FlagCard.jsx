@@ -1,7 +1,12 @@
 export default function FlagCard({ src, alt }) {
   return (
-    <div className="rounded-xl overflow-hidden shadow-2xl border border-slate-700 bg-slate-900 transition-transform duration-300">
-      <img src={src} alt={alt || 'Flag'} className="w-full h-[280px] object-contain animate-float bg-white" />
+    <div className="atlas-panel overflow-hidden rounded-sm transition-transform duration-300">
+      <img
+        src={src}
+        alt={alt || 'Flag'}
+        data-testid="flag-image"
+        className="h-[280px] w-full bg-white object-contain animate-float dark:bg-[#e9e5dc]"
+      />
     </div>
   )
 }

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test": "vitest run",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:data": "node scripts/generate-data.mjs",
@@ -13,13 +14,14 @@
     "validate:assets": "node scripts/validate-assets.mjs",
     "validate:secret": "node scripts/validate-secrets.mjs",
     "deploy": "npm run build && gh-pages -d dist -u \"github-actions-bot <support+actions@github.com>\"",
-    "check": "npm run validate:data && npm run validate:assets && npm run validate:secret && npm run lint && npm run build"
+    "check": "npm run validate:data && npm run validate:assets && npm run validate:secret && npm run lint && npm run test && npm run build"
   },
   "dependencies": {
     "axios": "^1.13.6",
     "classnames": "^2.5.1",
-    "framer-motion": "^12.34.3",
     "country-flag-icons": "^1.6.20",
+    "framer-motion": "^12.34.3",
+    "lucide-react": "^1.25.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.1",
@@ -29,6 +31,8 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.2.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
@@ -39,9 +43,11 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "gh-pages": "^6.3.0",
     "globals": "^16.5.0",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.13",
-    "vite": "^8.0.0-beta.13"
+    "vite": "^8.0.0-beta.13",
+    "vitest": "^4.1.10"
   },
   "overrides": {
     "vite": "^8.0.0-beta.13"

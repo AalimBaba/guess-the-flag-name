@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="./vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Guess the Flag Name</title>
+    <script>
+      // Apply the saved or system theme before first paint.
+      (function () {
+        var savedTheme = localStorage.getItem('theme')
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        var useDark = savedTheme === 'dark' || (savedTheme !== 'light' && prefersDark)
+        document.documentElement.classList.toggle('dark', useDark)
+      })()
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

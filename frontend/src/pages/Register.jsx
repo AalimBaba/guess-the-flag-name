@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useAuth } from '../context/useAuth.js'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/useAuth.js'
+import { ACCOUNTS_UNAVAILABLE_MESSAGE } from '../services/apiConfig'
 import CompassWatermark from '../components/CompassWatermark'
 
 export default function Register() {
-  const { register } = useAuth()
-  const nav = useNavigate()
+  const { register, apiAvailable } = useAuth()
+  const navigate = useNavigate()
   const [form, setForm] = useState({
     username: '',
     email: '',
@@ -17,84 +18,68 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
 
   const strength = (() => {
-    const s = form.password
+    const password = form.password
     let score = 0
-    if (s.length >= 8) score++
-    if (/[A-Z]/.test(s)) score++
-    if (/[0-9]/.test(s)) score++
-    if (/[^A-Za-z0-9]/.test(s)) score++
+    if (password.length >= 8) score += 1
+    if (/[A-Z]/.test(password)) score += 1
+    if (/[0-9]/.test(password)) score += 1
+    if (/[^A-Za-z0-9]/.test(password)) score += 1
     return score
   })()
 
   const strengthLabel = ['Weak', 'Fair', 'Good', 'Strong'][strength - 1] || 'Too short'
   const strengthColor =
-    strength < 2 ? 'text-stamp-red' : strength < 3 ? 'text-brass-dark' : 'text-stamp-green'
+    strength < 2 ? 'atlas-accent' : strength < 3 ? 'text-[color:var(--atlas-border)]' : 'text-[color:var(--atlas-success)]'
 
-  const onSubmit = async (e) => {
-    e.preventDefault()
+  const onSubmit = async (event) => {
+    event.preventDefault()
     setError('')
     setLoading(true)
-    const res = await register(form)
+    const result = await register(form)
     setLoading(false)
-    if (!res.ok) {
-      setError(res.message)
-    } else {
-      nav('/dashboard')
-    }
+    if (!result.ok) setError(result.message)
+    else navigate('/dashboard')
   }
 
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const onChange = (event) => setForm({ ...form, [event.target.name]: event.target.value })
 
   return (
-    <div className="relative flex items-center justify-center min-h-[calc(100vh-64px)] px-4 py-12">
+    <div className="relative flex min-h-[calc(100vh-64px)] items-center justify-center px-4 py-12">
       <CompassWatermark />
       <div className="relative z-10 w-full max-w-md">
-        <div className="flex justify-center mb-[-1.1rem] relative z-10">
+        <div className="relative z-10 mb-[-1.1rem] flex justify-center">
           <span className="visa-stamp text-sm">Entry Visa Application</span>
         </div>
-        <div className="atlas-frame bg-parchment-light rounded-sm p-8 pt-10">
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-ink-faint text-center mb-1">
+        <div className="atlas-frame atlas-panel rounded-sm p-8 pt-10">
+          <p className="atlas-kicker mb-1 text-center font-mono text-[11px] uppercase tracking-[0.3em]">
             New Traveler Registration
           </p>
-          <h2 className="font-display text-3xl text-center text-ink mb-6">Create Account</h2>
+          <h2 className="atlas-heading mb-6 text-center font-display text-3xl">Create Account</h2>
 
+          {!apiAvailable && error !== ACCOUNTS_UNAVAILABLE_MESSAGE && (
+            <div className="atlas-error mb-4 rounded-sm px-3 py-2 text-sm" role="status">
+              {ACCOUNTS_UNAVAILABLE_MESSAGE}
+            </div>
+          )}
           {error && (
-            <div className="mb-4 border border-stamp-red/40 bg-stamp-red/5 text-stamp-red text-sm px-3 py-2 rounded-sm">
+            <div className="atlas-error mb-4 rounded-sm px-3 py-2 text-sm" role="alert">
               {error}
             </div>
           )}
 
           <form onSubmit={onSubmit} className="space-y-5">
-            <div>
-              <label className="font-mono text-[11px] uppercase tracking-widest text-ink-faint">
-                Username
-              </label>
-              <input
-                name="username"
-                value={form.username}
-                onChange={onChange}
-                className="field-underline"
-                required
-              />
-            </div>
-            <div>
-              <label className="font-mono text-[11px] uppercase tracking-widest text-ink-faint">
-                Email
-              </label>
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={onChange}
-                className="field-underline"
-                required
-              />
-            </div>
+            <Field label="Username">
+              <input name="username" value={form.username} onChange={onChange} className="field-underline" required />
+            </Field>
+            <Field label="Email">
+              <input name="email" type="email" value={form.email} onChange={onChange} className="field-underline" required />
+            </Field>
             <div className="relative">
-              <label className="font-mono text-[11px] uppercase tracking-widest text-ink-faint">
+              <label className="atlas-kicker font-mono text-[11px] uppercase tracking-widest" htmlFor="register-password">
                 Password
               </label>
               <input
+                id="register-password"
                 name="password"
                 type={show ? 'text' : 'password'}
                 value={form.password}
@@ -104,17 +89,14 @@ export default function Register() {
               />
               <button
                 type="button"
-                onClick={() => setShow((s) => !s)}
-                className="absolute right-1 bottom-2 font-mono text-[10px] uppercase tracking-widest text-ink-faint hover:text-ink"
-                aria-label="Toggle password visibility"
+                onClick={() => setShow((value) => !value)}
+                className="atlas-kicker absolute bottom-2 right-1 font-mono text-[10px] uppercase tracking-widest hover:text-[color:var(--atlas-ink)]"
+                aria-label={show ? 'Hide password' : 'Show password'}
               >
                 {show ? 'Hide' : 'Show'}
               </button>
             </div>
-            <div>
-              <label className="font-mono text-[11px] uppercase tracking-widest text-ink-faint">
-                Confirm Password
-              </label>
+            <Field label="Confirm Password">
               <input
                 name="confirmPassword"
                 type="password"
@@ -123,42 +105,51 @@ export default function Register() {
                 className="field-underline"
                 required
               />
-            </div>
+            </Field>
 
             <div>
-              <div className="flex justify-between items-baseline mb-1">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-ink-faint">
-                  Document Strength
-                </span>
+              <div className="mb-1 flex items-baseline justify-between">
+                <span className="atlas-kicker font-mono text-[10px] uppercase tracking-widest">Document Strength</span>
                 <span className={`font-mono text-[10px] uppercase tracking-widest ${strengthColor}`}>
                   {form.password ? strengthLabel : '-'}
                 </span>
               </div>
-              <div className="h-1 w-full bg-ink/10 rounded-full overflow-hidden">
+              <div className="h-1 w-full overflow-hidden rounded-full bg-ink/10 dark:bg-white/10">
                 <div
                   className={`h-1 rounded-full transition-all duration-300 ${
                     ['w-1/4', 'w-2/4', 'w-3/4', 'w-full'][strength - 1] || 'w-0'
-                  } ${strength < 2 ? 'bg-stamp-red' : strength < 3 ? 'bg-brass' : 'bg-stamp-green'}`}
+                  } ${
+                    strength < 2 ? 'bg-stamp-red dark:bg-[#e08a82]' : strength < 3 ? 'bg-brass' : 'bg-stamp-green dark:bg-[#8fc79a]'
+                  }`}
                 />
               </div>
             </div>
 
             <button
               disabled={loading}
-              className="w-full mt-2 rounded-full bg-ink text-parchment-light hover:bg-ink/90 transition-colors px-4 py-3 font-mono text-xs uppercase tracking-[0.2em] disabled:opacity-60"
+              className="atlas-primary mt-2 w-full rounded-full px-4 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors disabled:opacity-60"
             >
               {loading ? 'Processing...' : 'Submit Application'}
             </button>
           </form>
 
-          <p className="text-sm text-ink-soft mt-6 text-center font-body">
+          <p className="atlas-copy mt-6 text-center text-sm">
             Already hold a passport?{' '}
-            <Link className="text-stamp-red hover:underline" to="/login">
+            <Link className="atlas-accent hover:underline" to="/login">
               Sign in
             </Link>
           </p>
         </div>
       </div>
+    </div>
+  )
+}
+
+function Field({ label, children }) {
+  return (
+    <div>
+      <label className="atlas-kicker font-mono text-[11px] uppercase tracking-widest">{label}</label>
+      {children}
     </div>
   )
 }

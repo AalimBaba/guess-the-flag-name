@@ -5,6 +5,7 @@ export const useAuth = () =>
     user: null,
     loading: false,
     ready: true,
+    apiAvailable: false,
     login: async () => ({ ok: false }),
     register: async () => ({ ok: false }),
     logout: async () => {},

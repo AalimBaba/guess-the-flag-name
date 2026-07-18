@@ -17,7 +17,9 @@ export default function Navbar() {
     <Link
       to={to}
       className={`px-3 py-1.5 font-mono text-xs uppercase tracking-widest transition-colors border-b-2 ${
-        active ? 'border-brass text-ink' : 'border-transparent text-ink-soft hover:text-ink hover:border-ink/30'
+        active
+          ? 'border-brass text-ink dark:text-[#f1e7cf]'
+          : 'border-transparent text-ink-soft hover:text-ink hover:border-ink/30 dark:text-[#c2b79f] dark:hover:text-[#f1e7cf] dark:hover:border-[#b39451]/60'
       }`}
     >
       {label}
@@ -25,11 +27,11 @@ export default function Navbar() {
   )
 
   return (
-    <header className="sticky top-0 z-20 bg-parchment-light/90 backdrop-blur border-b border-brass/40">
+    <header className="sticky top-0 z-20 border-b border-brass/40 bg-parchment-light/90 backdrop-blur dark:border-[#b39451]/50 dark:bg-[#101624]/95">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <Link to={user ? '/dashboard' : '/'} className="flex items-baseline gap-2">
-          <span className="font-display italic text-2xl text-ink">Guess the</span>
-          <span className="font-display font-bold text-2xl tracking-tight text-stamp-red">
+          <span className="font-display italic text-2xl text-ink dark:text-[#f1e7cf]">Guess the</span>
+          <span className="font-display font-bold text-2xl tracking-tight text-stamp-red dark:text-[#d77f76]">
             Country Flag
           </span>
         </Link>
@@ -43,7 +45,7 @@ export default function Navbar() {
               {navLink('/profile', user.username, loc.pathname === '/profile')}
               <button
                 onClick={handleLogout}
-                className="ml-2 px-3 py-1.5 font-mono text-xs uppercase tracking-widest border border-ink/30 rounded-full hover:bg-ink hover:text-parchment-light transition-colors"
+                className="atlas-secondary ml-2 rounded-full px-3 py-1.5 font-mono text-xs uppercase tracking-widest transition-colors"
               >
                 Logout
               </button>
@@ -55,7 +57,7 @@ export default function Navbar() {
               {navLink('/login', 'Login', loc.pathname === '/login')}
               <Link
                 to="/register"
-                className="ml-2 px-3 py-1.5 font-mono text-xs uppercase tracking-widest border border-ink/30 rounded-full hover:bg-ink hover:text-parchment-light transition-colors"
+                className="atlas-secondary ml-2 rounded-full px-3 py-1.5 font-mono text-xs uppercase tracking-widest transition-colors"
               >
                 Register
               </Link>
