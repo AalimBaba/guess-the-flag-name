@@ -1,14 +1,24 @@
 import axios from 'axios'
+import { apiStatus, isGitHubPagesHost } from './apiConfig'
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
+  baseURL: apiStatus.baseURL || undefined,
   withCredentials: true,
 })
 
-export const setAuthToken = (token) => {
-  if (token) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-  } else {
-    delete api.defaults.headers.common['Authorization']
+api.interceptors.request.use((config) => {
+  if (!apiStatus.configured) {
+    const error = new Error('API is not configured')
+    error.code = 'API_NOT_CONFIGURED'
+    return Promise.reject(error)
   }
-}
+
+  const target = new URL(config.url || '', config.baseURL)
+  if (isGitHubPagesHost(target.hostname)) {
+    const error = new Error('GitHub Pages cannot be used as the API server')
+    error.code = 'INVALID_API_HOST'
+    return Promise.reject(error)
+  }
+
+  return config
+})

@@ -11,7 +11,14 @@ import Navbar from './components/Navbar.jsx'
 import './index.css'
 
 function PrivateRoute({ children }) {
-  const { user } = useAuth()
+  const { user, ready } = useAuth()
+  if (!ready) {
+    return (
+      <div className="page-shell atlas-copy max-w-4xl py-10" role="status">
+        Restoring your session...
+      </div>
+    )
+  }
   if (!user) return <Navigate to="/login" replace />
   return children
 }
@@ -19,21 +26,14 @@ function PrivateRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/guess-the-flag-name/">
         <Navbar />
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route
               path="/profile"
               element={
@@ -42,14 +42,7 @@ export default function App() {
                 </PrivateRoute>
               }
             />
-            <Route
-              path="/leaderboard"
-              element={
-                <PrivateRoute>
-                  <Leaderboard />
-                </PrivateRoute>
-              }
-            />
+            <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </ErrorBoundary>
       </BrowserRouter>

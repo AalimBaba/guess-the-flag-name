@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
+  base: '/guess-the-flag-name/',
   plugins: [
     react({
       babel: {
@@ -14,5 +14,10 @@ export default defineConfig({
     hmr: {
       overlay: false,
     },
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+    css: true,
   },
 })

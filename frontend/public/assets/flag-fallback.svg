@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 72" role="img" aria-labelledby="title">
+  <title id="title">Flag image unavailable</title>
+  <rect width="96" height="72" rx="4" fill="#f6f0df"/>
+  <path d="M26 16v42M28 18h39l-8 11 8 11H28" fill="none" stroke="#6f6758" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m37 26 18 18m0-18L37 44" stroke="#a24b42" stroke-width="4" stroke-linecap="round"/>
+</svg>
