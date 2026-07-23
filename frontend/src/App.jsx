@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
+import { GameProvider } from './context/GameContext.jsx'
 import { useAuth } from './context/useAuth.js'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import Register from './pages/Register.jsx'
@@ -26,26 +27,27 @@ function PrivateRoute({ children }) {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename="/guess-the-flag-name/">
-        <Navbar />
-        <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <Profile />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-          </Routes>
-        </ErrorBoundary>
-      </BrowserRouter>
+      <GameProvider>
+        <BrowserRouter basename="/guess-the-flag-name/">
+          <Navbar />
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute>
+                    <Profile />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
+          </ErrorBoundary>
+        </BrowserRouter>
+      </GameProvider>
     </AuthProvider>
   )
 }

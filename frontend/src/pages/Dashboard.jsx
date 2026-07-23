@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
+import { useEffect, useMemo, useCallback, useRef, useContext } from "react"
+import { Fragment} from "react"
 import { useTimer } from '../hooks/useTimer'
 import { useGameEngine } from '../hooks/useGameEngine'
 import FlagCard from '../components/FlagCard'
@@ -8,23 +9,94 @@ import ModeToggle from '../components/ModeToggle'
 import { api } from '../services/api'
 import Globe from '../components/Globe';
 import Atlas from '../components/Atlas';
+import { collections } from '../data/collections';
+import { GameContext } from '../context/GameContext';
 
 export default function Dashboard() {
-  const [mode, setMode] = useState('typing')
-  const [difficulty, setDifficulty] = useState('medium')
-  const [gameStarted, setGameStarted] = useState(false)
-  const [gameOver, setGameOver] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedOption, setSelectedOption] = useState(null)
-  
-  const engine = useGameEngine({ difficulty, mode })
-  const timer = useTimer(60)
-  const nextTimeoutRef = useRef(null)
+  const gameContext = useContext(GameContext);
+
+  const {
+    mode,
+    setMode,
+    difficulty,
+    setDifficulty,
+    answerMode,
+    setAnswerMode,
+    roundLimit,
+    setRoundLimit,
+    collectionId,
+    setCollectionId,
+    addXP,
+    addBadge,
+    setDailyStreak,
+    setLastPlayed,
+    addMissedFlag,
+    removeMissedFlag,
+    addFavoriteFlag,
+    removeFavoriteFlag,
+    setDailyChallengeSeed,
+    resetGameState,
+    xp,
+    level,
+    badges,
+    dailyStreak,
+    lastPlayed,
+    missedFlags,
+    favoriteFlags,
+    dailyChallengeSeed
+  } = gameContext;
+
+  // UI states
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [globeOpen, setGlobeOpen] = useState(false);
+  const [atlasOpen, setAtlasOpen] = useState(false);
+
+  // Compute game engine parameters based on mode
+  const disableTimer = mode === 'learning' || mode === 'practice';
+  const disablePenalties = mode === 'learning' || mode === 'practice';
+
+  const engine = useGameEngine({
+    collectionId,
+    difficulty,
+    roundLimit,
+    mode,
+    missedFlags,
+    answerMode: answerMode === 'multiple' ? 'multiple' : 'typing',
+    disableTimer,
+    disablePenalties,
+    // For daily challenge, we will pass a seed later; we need to modify useGameEngine to accept seed
+    // We'll add seed parameter after we update the hook
+    seed: mode === 'daily' ? dailyChallengeSeed : undefined,
+  });
+
+  const timer = useTimer(60);
+  const nextTimeoutRef = useRef(null);
+
+  // Fetch daily challenge seed when mode changes to daily
+  useEffect(() => {
+    if (mode === 'daily') {
+      // Fetch seed from backend
+      api.get('/api/daily-challenge')
+        .then(response => {
+          // Assuming the response contains a seed (string or number)
+          const seed = response.data.seed || response.data; // adjust based on actual response
+          setDailyChallengeSeed(seed);
+        })
+        .catch(err => {
+          console.error('Failed to fetch daily challenge seed', err);
+          // Fallback to a random seed? Or use current timestamp?
+          setDailyChallengeSeed(Date.now().toString());
+        });
+    }
+  }, [mode, setDailyChallengeSeed]);
 
   // Start the game
   const startGame = useCallback(() => {
-    engine.reset()
-    const item = engine.nextFlag()
+    engine.reset();
+    const item = engine.nextFlag();
     if (item) {
       timer.start()
       setGameStarted(true)
@@ -34,7 +106,7 @@ export default function Dashboard() {
     }
   }, [engine, timer])
 
-  // Reset when difficulty or mode changes
+  // Reset when difficulty, mode, collectionId, answerMode, roundLimit changes
   useEffect(() => {
     setGameStarted(false)
     setGameOver(false)
@@ -43,9 +115,9 @@ export default function Dashboard() {
     timer.stop()
     engine.reset()
     if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current)
-  }, [difficulty, mode])
+  }, [difficulty, mode, collectionId, answerMode, roundLimit, engine])
 
-  // End game when timer reaches 0
+  // End game when timer reaches 0 (for timed and daily modes)
   useEffect(() => {
     if (gameStarted && timer.seconds === 0) {
       setGameStarted(false)
@@ -59,7 +131,28 @@ export default function Dashboard() {
           : Math.round(
               (engine.answers.filter((a) => a.correct).length / engine.answers.length) * 100
             )
-      
+
+      // Award XP based on score and streak multipliers
+      // We'll calculate XP earned: base XP per correct answer plus streak bonus
+      // For simplicity, we award XP equal to the score gained in this game?
+      // But score can be negative due to penalties. We'll award XP for correct answers only.
+      const correctAnswers = engine.answers.filter(a => a.correct).length;
+      const xpEarned = correctAnswers * 10; // 10 XP per correct answer
+      // Add streak bonus: for each streak of 5 correct, bonus 50 XP? We'll compute based on engine's streakMax?
+      // Actually, we want to award XP during gameplay, not just at the end.
+      // We'll change approach: award XP in the game engine or in the answer processing.
+      // For now, we'll award XP at the end based on correct answers.
+      addXP(xpEarned);
+
+      // Update daily streak if not already played today
+      const today = new Date().toISOString().split('T')[0];
+      const lastPlayedDate = lastPlayed ? new Date(lastPlayed).toISOString().split('T')[0] : null;
+      if (lastPlayedDate !== today) {
+        setDailyStreak(prev => prev + 1);
+        setLastPlayed(new Date().toISOString());
+      }
+
+      // Save game to backend
       api
         .post('/game/save', {
           score: engine.score,
@@ -71,7 +164,7 @@ export default function Dashboard() {
         })
         .catch((err) => console.error('Failed to save game', err))
     }
-  }, [timer.seconds, gameStarted, engine, mode, difficulty])
+  }, [timer.seconds, gameStarted, engine, mode, difficulty, addXP, setDailyStreak, setLastPlayed, lastPlayed, api])
 
   const handleNext = useCallback(() => {
     setIsProcessing(false)
@@ -89,7 +182,7 @@ export default function Dashboard() {
     if (isProcessing) return
     setIsProcessing(true)
     engine.checkAnswer(value)
-    
+
     // Auto advance after delay
     nextTimeoutRef.current = setTimeout(handleNext, 1500)
   }
@@ -99,7 +192,7 @@ export default function Dashboard() {
     setIsProcessing(true)
     setSelectedOption(name)
     engine.checkAnswer(name)
-    
+
     // Auto advance after delay
     nextTimeoutRef.current = setTimeout(handleNext, 1500)
   }
@@ -116,7 +209,19 @@ export default function Dashboard() {
     <>
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
-          <ModeToggle mode={mode} setMode={setMode} difficulty={difficulty} setDifficulty={setDifficulty} />
+          <ModeToggle
+            collectionId={collectionId}
+            setCollectionId={setCollectionId}
+            gameMode={mode}
+            setGameMode={setMode}
+            difficulty={difficulty}
+            setDifficulty={setDifficulty}
+            answerMode={answerMode}
+            setAnswerMode={setAnswerMode}
+            roundLimit={roundLimit}
+            setRoundLimit={setRoundLimit}
+            collections={collections}
+          />
           <div className="flex items-center gap-3">
             <Timer seconds={timer.seconds} />
             <ScoreBadge score={engine.score} streak={engine.streak} />
@@ -127,7 +232,7 @@ export default function Dashboard() {
           <div className="flex flex-col items-center justify-center py-20 space-y-6 bg-slate-900/40 rounded-2xl border border-slate-800">
             <h2 className="text-3xl font-bold">Ready to play?</h2>
             <p className="text-slate-400">Mode: <span className="capitalize text-white">{mode}</span> | Difficulty: <span className="capitalize text-white">{difficulty}</span></p>
-            <button 
+            <button
               onClick={startGame}
               className="px-8 py-3 bg-brand-600 hover:bg-brand-500 rounded-xl font-bold text-lg transition-all transform hover:scale-105"
             >
@@ -139,7 +244,7 @@ export default function Dashboard() {
             {engine.current && (
               <div className="relative">
                 <FlagCard code={engine.current.code} />
-                
+
                 {/* Feedback Overlay */}
                 {engine.lastResult && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-xl animate-in zoom-in duration-200">
@@ -161,18 +266,18 @@ export default function Dashboard() {
 
             {gameStarted && (
               <div className="mt-4">
-                {mode === 'typing' ? (
-                  <TypingForm 
-                    key={engine.current?.code} 
-                    submitTyping={submitTyping} 
-                    disabled={isProcessing} 
+                {answerMode === 'typing' ? (
+                  <TypingForm
+                    key={engine.current?.code}
+                    submitTyping={submitTyping}
+                    disabled={isProcessing}
                   />
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {options.map((opt) => {
                       const isCorrect = opt.name === engine.current?.name
                       const isSelected = opt.name === selectedOption
-                      
+
                       let btnClass = "bg-slate-800 border-slate-700 hover:bg-slate-700"
                       if (isProcessing) {
                         if (isCorrect) btnClass = "bg-green-600/40 border-green-500 text-green-100"
@@ -251,8 +356,10 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {globeOpen && <Globe onClose={closeGlobe} />}
-      {atlasOpen && <Atlas onClose={closeAtlas} />}
+      <>
+        {globeOpen && <Globe onClose={closeGlobe} />}
+        {atlasOpen && <Atlas onClose={closeAtlas} />}
+      </>
     </>
   );
 }
@@ -278,7 +385,7 @@ function TypingForm({ submitTyping, disabled }) {
           onChange={(e) => setQuery(e.target.value)}
           className="flex-1 rounded-lg bg-slate-800 border border-slate-700 px-4 py-3 outline-none focus:ring-2 focus:ring-brand-500 text-lg disabled:opacity-50"
         />
-        <button 
+        <button
           disabled={disabled}
           className="rounded-lg bg-brand-600 hover:bg-brand-500 px-6 py-3 font-bold disabled:opacity-50 transition-colors"
         >

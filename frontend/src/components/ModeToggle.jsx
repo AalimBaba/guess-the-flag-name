@@ -1,10 +1,12 @@
 export default function ModeToggle({
   collectionId,
   setCollectionId,
-  mode,
-  setMode,
+  gameMode,
+  setGameMode,
   difficulty,
   setDifficulty,
+  answerMode,
+  setAnswerMode,
   roundLimit,
   setRoundLimit,
   collections,
@@ -31,15 +33,17 @@ export default function ModeToggle({
         </select>
       </label>
       <label className={labelClass}>
-        <span className={labelTextClass}>Answer mode</span>
+        <span className={labelTextClass}>Game Mode</span>
         <select
-          aria-label="Answer mode"
-          value={mode}
-          onChange={(event) => setMode(event.target.value)}
+          aria-label="Game mode"
+          value={gameMode}
+          onChange={(event) => setGameMode(event.target.value)}
           className={controlClass}
         >
-          <option value="typing">Typing</option>
-          <option value="multiple">Multiple Choice</option>
+          <option value="learning">Learning</option>
+          <option value="practice">Practice</option>
+          <option value="timed">Timed Blitz</option>
+          <option value="daily">Daily Challenge</option>
         </select>
       </label>
       <label className={labelClass}>
@@ -53,6 +57,18 @@ export default function ModeToggle({
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
+        </select>
+      </label>
+      <label className={labelClass}>
+        <span className={labelTextClass}>Answer Mode</span>
+        <select
+          aria-label="Answer mode"
+          value={answerMode}
+          onChange={(event) => setAnswerMode(event.target.value)}
+          className={controlClass}
+        >
+          <option value="typing">Typing</option>
+          <option value="multiple">Multiple Choice</option>
         </select>
       </label>
       <label className={labelClass}>
